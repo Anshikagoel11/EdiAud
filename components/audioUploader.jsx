@@ -74,7 +74,7 @@ export default function AudioUploader() {
 
       <button
   onClick={() =>
-    exportProcessedAudio(audioFile, { echo, reverb })
+    exportProcessedAudio(audioFile, { echo, reverb})
   }
   className="mt-4 p-2 bg-blue-500 text-white"
 >
