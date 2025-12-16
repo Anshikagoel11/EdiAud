@@ -5,36 +5,34 @@ import { exportProcessedAudio } from "@/utils/exportaudio";
 import usePlaybackTracker from "@/hooks/usePlaybackTracker";
 import WaveformTrim from "./waveformTrim";
 import PlaybackInsights from "./playbackInsights";
+import { Music, Waves, Scissors, BarChart3 } from "lucide-react";
 
 export default function AudioUploader() {
   const [audioFile, setAudioFile] = useState(null);
+  const [activeTab, setActiveTab] = useState("effects"); // "effects", "trim", "insights"
   
   // Echo parameters
   const [echoEnabled, setEchoEnabled] = useState(false);
-  const [echoDelay, setEchoDelay] = useState(0.25); // 0.01 to 1 second
-  const [echoFeedback, setEchoFeedback] = useState(0.4); // 0 to 0.9
+  const [echoDelay, setEchoDelay] = useState(0.25);
+  const [echoFeedback, setEchoFeedback] = useState(0.4);
   
   // Reverb parameters
   const [reverbEnabled, setReverbEnabled] = useState(false);
-  const [reverbRoomSize, setReverbRoomSize] = useState(2); // 0.5 to 5 seconds
-  const [reverbWetDry, setReverbWetDry] = useState(0.5); // 0 to 1
+  const [reverbRoomSize, setReverbRoomSize] = useState(2);
+  const [reverbWetDry, setReverbWetDry] = useState(0.5);
   
   const audioRef = useRef(null);
-
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(null);
-   const [audioUrl, setAudioUrl] = useState(null);
-
-
+  const [audioUrl, setAudioUrl] = useState(null);
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) setAudioFile(file);
   };
 
- const segments = usePlaybackTracker(audioRef,audioUrl);
+  const segments = usePlaybackTracker(audioRef, audioUrl);
  
-  // create the object URL once when file changes and revoke it on cleanup
   useEffect(() => {
     if (!audioFile) {
       setAudioUrl(null);
@@ -51,213 +49,270 @@ export default function AudioUploader() {
   }, [audioFile]);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Audio Editor</h1>
-      
-      <input
-        type="file"
-        accept="audio/*"
-        onChange={handleUpload}
-        className="border p-2 rounded mb-4"
-      />
-
-      {audioFile && <p className="mt-2 text-gray-600">Uploaded: {audioFile.name}</p>}
-
-      {audioUrl && (
-        <audio
-          controls
-          src={audioUrl}
-          ref={audioRef}
-          onLoadedMetadata={() => {
-            if (trimEnd === null) {
-              setTrimEnd(audioRef.current?.duration);
-            }
-          }}
-          className="mt-4 w-full"
-        />
-      )}
-
-      {/* Echo Controls */}
-      <div className="mt-6 p-4 border rounded-lg bg-gray-50 text-black">
-        <div className="flex items-center justify-between mb-4 text-black">
-          <h3 className="text-lg font-semibold text-black">Echo Effect</h3>
-          <label className="flex items-center gap-2 cursor-pointer text-black">
-            <input
-              type="checkbox"
-              checked={echoEnabled}
-              onChange={(e) => {
-                setEchoEnabled(e.target.checked);
-                console.log("Echo enabled:", e.target.checked);
-              }}
-              className="w-5 h-5 text-black"
-            />
-            <span className="text-sm text-black">Enable</span>
-          </label>
+    <div className="min-h-screen w-full m-7 p-6 rounded-3xl shadow-2xl border border-gray-700">
+      <div className="mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-white mb-2">Audio Enhancer</h1>
+          <p className="text-blue-200/70">Upload and enhance your audio files</p>
         </div>
 
-        {echoEnabled && (
-          <div className="space-y-4">
-            <div>
-              <label className=" text-black block text-sm font-medium mb-2">
-                Delay: {echoDelay.toFixed(2)}s
-              </label>
-              <input
-                type="range"
-                min="0.01"
-                max="1"
-                step="0.01"
-                value={echoDelay}
-                onChange={(e) => setEchoDelay(parseFloat(e.target.value))}
-                className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0.01s (Fast)</span>
-                <span>1.0s (Slow)</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-black font-medium mb-2">
-                Feedback: {(echoFeedback * 100).toFixed(0)}%
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="0.9"
-                step="0.05"
-                value={echoFeedback}
-                onChange={(e) => setEchoFeedback(parseFloat(e.target.value))}
-                className="w-full h-2 text-black bg-blue-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0% (Single echo)</span>
-                <span>90% (Many repeats)</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Reverb Controls */}
-      <div className="mt-4 p-4 border text-black rounded-lg bg-gray-50">
-        <div className="flex text-black items-center justify-between mb-4">
-          <h3 className="text-lg text-black font-semibold">Reverb Effect</h3>
-          <label className="flex text-black items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={reverbEnabled}
-              onChange={(e) => {
-                setReverbEnabled(e.target.checked);
-                console.log("Reverb enabled:", e.target.checked);
-              }}
-              className="w-5 h-5"
-            />
-            <span className="text-sm text-black">Enable</span>
+        {/* Upload Section */}
+        <div className="mb-6">
+          <label className="block mb-3 text-sm font-medium text-blue-200">
+            Upload Audio File
           </label>
-        </div>
-
-        {reverbEnabled && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Room Size: {reverbRoomSize.toFixed(1)}s
-              </label>
-              <input
-                type="range"
-                min="0.5"
-                max="5"
-                step="0.1"
-                value={reverbRoomSize}
-                onChange={(e) => setReverbRoomSize(parseFloat(e.target.value))}
-                className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0.5s (Small room)</span>
-                <span>5s (Large hall)</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Wet/Dry Mix: {(reverbWetDry * 100).toFixed(0)}% wet
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={reverbWetDry}
-                onChange={(e) => setReverbWetDry(parseFloat(e.target.value))}
-                className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0% (Original sound)</span>
-                <span>100% (Full reverb)</span>
-              </div>
-            </div>
+          <div className="relative">
+            <input
+              type="file"
+              accept="audio/*"
+              onChange={handleUpload}
+              className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gradient-to-r file:from-blue-600 file:to-indigo-600 file:text-white hover:file:from-blue-700 hover:file:to-indigo-700 cursor-pointer"
+            />
           </div>
-        )}
-      </div>
-
-      <AudioEffects 
-        audioRef={audioRef}
-        echoEnabled={echoEnabled}
-        echoDelay={echoDelay}
-        echoFeedback={echoFeedback}
-        reverbEnabled={reverbEnabled}
-        reverbRoomSize={reverbRoomSize}
-        reverbWetDry={reverbWetDry}
-      />
-
-      <WaveformTrim
-        audioUrl={audioUrl}
-        onTrimChange={(start, end) => {
-          setTrimStart(start);
-          setTrimEnd(end);
-        }}
-      />
-
-      <div className="mt-2 text-sm text-gray-600">
-        Selected trim: {trimStart?.toFixed(1) ?? 0}s —{" "}
-        {trimEnd?.toFixed(1) ?? audioRef.current?.duration ?? "—"}s
-      </div>
-
-      <button
-        onClick={() => {
-          const s = Number(trimStart) || 0;
-          const e = trimEnd == null ? null : Number(trimEnd);
           
-          console.log("Download requested with settings:", {
-            trimStart: s,
-            trimEnd: e,
-            echoEnabled,
-            echoDelay,
-            echoFeedback,
-            reverbEnabled,
-            reverbRoomSize,
-            reverbWetDry
-          });
+          {audioFile && (
+            <div className="p-3 rounded-lg border border-blue-500/20 mt-5 bg-gray-800/30">
+              <p className="text-sm text-blue-300">
+                Uploaded: <span className="font-medium">{audioFile.name}</span>
+              </p>
+            </div>
+          )}
+        </div>
 
-          exportProcessedAudio(audioFile, {
-            echoEnabled,
-            echoDelay,
-            echoFeedback,
-            reverbEnabled,
-            reverbRoomSize,
-            reverbWetDry,
-            trimStart: s,
-            trimEnd: e,
-          });
-        }}
-        disabled={!audioFile}
-        className="mt-6 w-full p-3 bg-blue-700 text-black rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-      >
-        Download Processed Audio
-      </button>
+        {/* Audio Player */}
+        {audioUrl && (
+          <div className="mb-8">
+            <audio
+              controls
+              src={audioUrl}
+              ref={audioRef}
+              onLoadedMetadata={() => {
+                if (trimEnd === null) {
+                  setTrimEnd(audioRef.current?.duration);
+                }
+              }}
+              className="w-full rounded-lg border border-blue-500/20 bg-gray-800/30"
+            />
+          </div>
+        )}
 
-     
-      <PlaybackInsights segments={segments} />
+        {/* Tab Navigation */}
+        {audioUrl && (
+          <div className="mb-8">
+            <div className="flex border-b border-gray-700">
+              <button
+                onClick={() => setActiveTab("effects")}
+                className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+                  activeTab === "effects" 
+                    ? "text-blue-400 border-b-2 border-blue-400" 
+                    : "text-gray-400 hover:text-gray-300"
+                }`}
+              >
+                <Waves className="w-5 h-5" />
+                Effects
+              </button>
+              <button
+                onClick={() => setActiveTab("trim")}
+                className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+                  activeTab === "trim" 
+                    ? "text-blue-400 border-b-2 border-blue-400" 
+                    : "text-gray-400 hover:text-gray-300"
+                }`}
+              >
+                <Scissors className="w-5 h-5" />
+                Trim Audio
+              </button>
+              <button
+                onClick={() => setActiveTab("insights")}
+                className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+                  activeTab === "insights" 
+                    ? "text-blue-400 border-b-2 border-blue-400" 
+                    : "text-gray-400 hover:text-gray-300"
+                }`}
+              >
+                <BarChart3 className="w-5 h-5" />
+                Insights
+              </button>
+            </div>
 
+            {/* Tab Content */}
+            <div className="mt-6">
+              {activeTab === "effects" && (
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Echo Controls */}
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-gray-800/20 to-gray-900/30 backdrop-blur-sm border border-white/10">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-lg font-semibold text-white">Echo Effect</h3>
+                      <button
+                        onClick={() => setEchoEnabled(!echoEnabled)}
+                        className={`relative w-12 h-6 rounded-full transition-colors ${echoEnabled ? 'bg-purple-300' : 'bg-blue-200'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${echoEnabled ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+
+                    {echoEnabled && (
+                      <div className="space-y-5">
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-sm text-gray-300">Delay: {echoDelay.toFixed(2)}s</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.01"
+                            max="1"
+                            step="0.01"
+                            value={echoDelay}
+                            onChange={(e) => setEchoDelay(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-700 rounded-lg appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-400"
+                          />
+                          <div className="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Fast</span>
+                            <span>Slow</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-sm text-gray-300">Feedback: {(echoFeedback * 100).toFixed(0)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="0.9"
+                            step="0.05"
+                            value={echoFeedback}
+                            onChange={(e) => setEchoFeedback(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-700 rounded-lg appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-400"
+                          />
+                          <div className="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Single</span>
+                            <span>Many</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reverb Controls */}
+                  <div className="p-5 rounded-xl bg-gradient-to-br from-gray-800/20 to-gray-900/30 backdrop-blur-sm border border-white/10">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-lg font-semibold text-white">Reverb Effect</h3>
+                      <button
+                        onClick={() => setReverbEnabled(!reverbEnabled)}
+                        className={`relative w-12 h-6 rounded-full transition-colors ${reverbEnabled ? 'bg-purple-300' : 'bg-blue-200'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${reverbEnabled ? 'left-7' : 'left-1'}`} />
+                      </button>
+                    </div>
+
+                    {reverbEnabled && (
+                      <div className="space-y-5">
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-sm text-gray-300">Room Size: {reverbRoomSize.toFixed(1)}s</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.5"
+                            max="5"
+                            step="0.1"
+                            value={reverbRoomSize}
+                            onChange={(e) => setReverbRoomSize(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-700 rounded-lg appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-400"
+                          />
+                          <div className="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Small</span>
+                            <span>Large</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-sm text-gray-300">Wet/Dry: {(reverbWetDry * 100).toFixed(0)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={reverbWetDry}
+                            onChange={(e) => setReverbWetDry(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-700 rounded-lg appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-purple-400"
+                          />
+                          <div className="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Original</span>
+                            <span>Full</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "trim" && (
+                <div>
+                  <WaveformTrim
+                    audioUrl={audioUrl}
+                    onTrimChange={(start, end) => {
+                      setTrimStart(start);
+                      setTrimEnd(end);
+                    }}
+                  />
+                  <div className="mt-4 p-4 bg-gray-800/30 rounded-lg border border-blue-500/20">
+                    <p className="text-sm text-blue-300">
+                      Selected trim: <span className="font-medium">{trimStart?.toFixed(1) ?? 0}s</span> —{" "}
+                      <span className="font-medium">{trimEnd?.toFixed(1) ?? audioRef.current?.duration ?? "—"}s</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "insights" && (
+                <PlaybackInsights segments={segments} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Download Button */}
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={() => {
+              const s = Number(trimStart) || 0;
+              const e = trimEnd == null ? null : Number(trimEnd);
+              
+              exportProcessedAudio(audioFile, {
+                echoEnabled,
+                echoDelay,
+                echoFeedback,
+                reverbEnabled,
+                reverbRoomSize,
+                reverbWetDry,
+                trimStart: s,
+                trimEnd: e,
+              });
+            }}
+            disabled={!audioFile}
+            className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium rounded-lg hover:from-blue-600 hover:to-indigo-600 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
+          >
+            Download Processed Audio
+          </button>
+        </div>
+
+        {/* Hidden Audio Effects Component */}
+        <AudioEffects 
+          audioRef={audioRef}
+          echoEnabled={echoEnabled}
+          echoDelay={echoDelay}
+          echoFeedback={echoFeedback}
+          reverbEnabled={reverbEnabled}
+          reverbRoomSize={reverbRoomSize}
+          reverbWetDry={reverbWetDry}
+        />
+      </div>
     </div>
   );
 }

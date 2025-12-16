@@ -1,5 +1,5 @@
 'use client';
-
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
@@ -26,6 +26,7 @@ export default function Navbar() {
         }`}
       >
         {/* Left content */}
+        <Link href="/">
        <div className="flex items-center gap-3">
   {/* Waveform Icon */}
   <svg
@@ -48,6 +49,7 @@ export default function Navbar() {
     EdiAud
   </span>
 </div>
+</Link>
 
         {/* Right placeholder (you can add menu or buttons here) */}
         <div className="flex items-center gap-4">
