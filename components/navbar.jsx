@@ -14,16 +14,14 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 m-10 ">
-      {/* Glow only on right */}
-
+    <nav className="w-full m-8">
 
       {/* Navbar container */}
       <div
         className={`relative max-w-7xl mx-auto flex items-center justify-between px-8 py-5
         transition-all duration-300 rounded-lg 
         ${isScrolled
-          ? 'bg-[#111214]/80 backdrop-blur-xl border-b border-white/10'
+          ? 'bg-[#111214]/80 backdrop-blur-xl'
           : 'bg-[#111214]'
         }`}
       >
@@ -46,7 +44,7 @@ export default function Navbar() {
   </svg>
 
   {/* Title */}
-  <span className="text-xl text-white/90 tracking-wide font-bold text-balance">
+  <span className="text-2xl text-white/90 tracking-wide font-bold text-balance">
     EdiAud
   </span>
 </div>
@@ -54,7 +52,7 @@ export default function Navbar() {
         {/* Right placeholder (you can add menu or buttons here) */}
         <div className="flex items-center gap-4">
              <div
-        className={`absolute top-0 right-0 h-[70%] w-36 bg rounded-l-full blur-xl transition-opacity duration-300
+        className={`absolute top-0 right-0 h-[50%] pt-2 w-36 bg rounded-l-full blur-xl transition-opacity duration-300
         ${isScrolled ? 'opacity-100' : 'opacity-70'}
         bg-gradient-to-l from-blue-600/80 via-indigo-500/50 to-transparent`}
       />
