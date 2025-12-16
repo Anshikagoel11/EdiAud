@@ -8,7 +8,7 @@ export default function usePlaybackTracker(
   const [segments, setSegments] = useState([]);
   const lastSegmentRef = useRef(null);
 
-  // 🔹 Initialize segments when audio element is ready
+ 
   useEffect(() => {
     if (!audioRef.current || !audioUrl) return;
 
@@ -32,14 +32,14 @@ export default function usePlaybackTracker(
     };
 
     audio.addEventListener("loadedmetadata", initSegments);
-    initSegments(); // 👈 in case metadata already loaded
+    initSegments(); 
 
     return () => {
       audio.removeEventListener("loadedmetadata", initSegments);
     };
   }, [audioRef, audioUrl, segmentSize]);
 
-  // 🔹 Track playback
+  // Track playback
   useEffect(() => {
     if (!audioRef.current || segments.length === 0) return;
 
