@@ -8,7 +8,15 @@ import { useEffect, useRef } from "react";
 let GLOBAL_AUDIO_CTX = null;
 let GLOBAL_SOURCE = null;
 
-export default function AudioEffects({ audioRef, echo, reverb }) {
+export default function AudioEffects({ 
+  audioRef, 
+  echoEnabled,
+  echoDelay = 0.25,
+  echoFeedback = 0.4,
+  reverbEnabled,
+  reverbRoomSize = 2,
+  reverbWetDry = 0.5
+}) {
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
 
@@ -53,12 +61,12 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
       dryGainRef.current = dryGain;
 
       // Echo - delayed sound
-      const delay = audioCtx.createDelay();
-      delay.delayTime.value = 0.25;
+      const delay = audioCtx.createDelay(1.0); // Max 1 second delay
+      delay.delayTime.value = echoDelay;
 
       //no of times echo repeats
       const feedback = audioCtx.createGain();
-      feedback.gain.value = 0.2;
+      feedback.gain.value = echoFeedback;
 
       //feedback loop
       delay.connect(feedback);
@@ -73,13 +81,12 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
       echoGainRef.current = echoGain;
 
       // Reverb effect
-
       const convolver = audioCtx.createConvolver(); //that make original audio sound like its in a different space (room/hall)
 
-      //create empty container for reverd sound data
+      //create empty container for reverb sound data (will be updated based on room size)
       const irBuffer = audioCtx.createBuffer(
         2, // channels for both side (L,R)
-        audioCtx.sampleRate * 1, // 1sec room effect (awaaz 1 second tak dheere-dheere fade hoti rahe)
+        audioCtx.sampleRate * reverbRoomSize, // room size in seconds
         audioCtx.sampleRate
       );
 
@@ -87,10 +94,12 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
       for (let ch = 0; ch < 2; ch++) {
         const data = irBuffer.getChannelData(ch);
         for (let i = 0; i < data.length; i++) {
-          data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+          // Exponential decay for more natural reverb
+          const decay = Math.pow(1 - i / data.length, 2);
+          data[i] = (Math.random() * 2 - 1) * decay;
         }
       }
-      //
+      
       convolver.buffer = irBuffer;
       convolverRef.current = convolver;
 
@@ -99,7 +108,6 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
       reverbGainRef.current = reverbGain;
 
       // Connections
-
       //source → delay → echoGain → speaker
       source.connect(dryGain);
       dryGain.connect(audioCtx.destination);
@@ -116,21 +124,65 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
 
     const audioCtx = audioCtxRef.current;
 
+    // Update echo parameters
+    if (delayRef.current && feedbackRef.current) {
+      // Clamp delay between 0.01 and 1 second
+      const clampedDelay = Math.max(0.01, Math.min(1, echoDelay));
+      delayRef.current.delayTime.setTargetAtTime(
+        clampedDelay,
+        audioCtx.currentTime,
+        0.05
+      );
+
+      // Clamp feedback between 0 and 0.9
+      const clampedFeedback = Math.max(0, Math.min(0.9, echoFeedback));
+      feedbackRef.current.gain.setTargetAtTime(
+        clampedFeedback,
+        audioCtx.currentTime,
+        0.05
+      );
+    }
+
+    // Update reverb parameters
+    if (convolverRef.current) {
+      // Recreate impulse response with new room size
+      const roomSize = Math.max(0.5, Math.min(5, reverbRoomSize));
+      const irBuffer = audioCtx.createBuffer(
+        2,
+        audioCtx.sampleRate * roomSize,
+        audioCtx.sampleRate
+      );
+
+      for (let ch = 0; ch < 2; ch++) {
+        const data = irBuffer.getChannelData(ch);
+        for (let i = 0; i < data.length; i++) {
+          const decay = Math.pow(1 - i / data.length, 2);
+          data[i] = (Math.random() * 2 - 1) * decay;
+        }
+      }
+
+      convolverRef.current.buffer = irBuffer;
+    }
+
+    // Set echo gain (on/off with smooth transition)
     echoGainRef.current.gain.setTargetAtTime(
-      echo ? 1 : 0,
+      echoEnabled ? 1 : 0,
       audioCtx.currentTime,
       0.05
     );
 
-    //  reduce dry sound when reverb ON
+    // Set reverb gain based on wet/dry mix
+    const wetAmount = Math.max(0, Math.min(1, reverbWetDry));
     reverbGainRef.current.gain.setTargetAtTime(
-      reverb ? 1 : 0,
+      reverbEnabled ? wetAmount : 0,
       audioCtx.currentTime,
       0.07
     );
 
+    // Adjust dry gain when reverb is enabled (reduce original sound based on wet/dry)
+    const dryAmount = reverbEnabled ? (1 - wetAmount * 0.5) : 1;
     dryGainRef.current.gain.setTargetAtTime(
-      reverb ? 0.6 : 1,
+      dryAmount,
       audioCtx.currentTime,
       0.07
     );
@@ -140,7 +192,7 @@ export default function AudioEffects({ audioRef, echo, reverb }) {
       audio.currentTime = currentTime;
       if (wasPlaying) audio.play();
     });
-  }, [echo, reverb]);
+  }, [echoEnabled, echoDelay, echoFeedback, reverbEnabled, reverbRoomSize, reverbWetDry]);
 
   return null;
 }

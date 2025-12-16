@@ -1,43 +1,68 @@
-import { useEffect, useRef } from "react";
-
-/**
- * Tracks how often each segment of audio is played
- * @param audioRef - ref of <audio> element
- * @param setPlayStats - state setter to store segment counts
- * @param segmentSize - length of each segment in seconds
- */
+import { useEffect, useRef, useState } from "react";
 
 export default function usePlaybackTracker(
   audioRef,
-  setPlayStats,
-  segmentSize = 5 // 5 second segments
+  audioUrl,
+  segmentSize = 5
 ) {
+  const [segments, setSegments] = useState([]);
   const lastSegmentRef = useRef(null);
 
+  // 🔹 Initialize segments when audio element is ready
   useEffect(() => {
+    if (!audioRef.current || !audioUrl) return;
+
     const audio = audioRef.current;
-    if (!audio) return;
 
-    const trackPlayback = () => {
-      if (audio.paused || audio.ended) return;
+    const initSegments = () => {
+      const duration = audio.duration;
+      if (!duration || isNaN(duration)) return;
 
-      const currentTime = audio.currentTime;
-      const segmentIndex = Math.floor(currentTime / segmentSize);
+      const count = Math.ceil(duration / segmentSize);
 
-      // prevent multiple counts in same segment continuously
-      if (lastSegmentRef.current !== segmentIndex) {
-        setPlayStats((prev) => ({
-          ...prev,
-          [segmentIndex]: (prev[segmentIndex] || 0) + 1,
-        }));
+      const initial = Array.from({ length: count }, (_, i) => ({
+        index: i,
+        start: i * segmentSize,
+        end: Math.min((i + 1) * segmentSize, duration),
+        plays: 0,
+      }));
 
-        lastSegmentRef.current = segmentIndex;
+      setSegments(initial);
+      lastSegmentRef.current = null;
+    };
+
+    audio.addEventListener("loadedmetadata", initSegments);
+    initSegments(); // 👈 in case metadata already loaded
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", initSegments);
+    };
+  }, [audioRef, audioUrl, segmentSize]);
+
+  // 🔹 Track playback
+  useEffect(() => {
+    if (!audioRef.current || segments.length === 0) return;
+
+    const audio = audioRef.current;
+
+    const onTimeUpdate = () => {
+      const time = audio.currentTime;
+      const index = Math.floor(time / segmentSize);
+
+      if (index !== lastSegmentRef.current) {
+        lastSegmentRef.current = index;
+
+        setSegments((prev) =>
+          prev.map((s) =>
+            s.index === index ? { ...s, plays: s.plays + 1 } : s
+          )
+        );
       }
     };
 
-    // track every 500ms
-    const interval = setInterval(trackPlayback, 500);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    return () => audio.removeEventListener("timeupdate", onTimeUpdate);
+  }, [audioRef, segments.length, segmentSize]);
 
-    return () => clearInterval(interval);
-  }, [audioRef, setPlayStats, segmentSize]);
+  return segments;
 }
