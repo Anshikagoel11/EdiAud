@@ -83,17 +83,17 @@ export default function AudioUploader() {
         {/* Audio Player */}
         {audioUrl && (
           <div className="mb-8">
-            <audio
-              controls
-              src={audioUrl}
-              ref={audioRef}
-              onLoadedMetadata={() => {
-                if (trimEnd === null) {
-                  setTrimEnd(audioRef.current?.duration);
-                }
-              }}
-              className="w-full rounded-lg border border-blue-500/20 bg-gray-800/30"
-            />
+           <audio
+  controls
+  src={audioUrl}
+  ref={audioRef}
+  onLoadedMetadata={() => {
+    if (trimEnd === null) {
+      setTrimEnd(audioRef.current?.duration);
+    }
+  }}
+  className="w-full rounded-xl border border-blue-400/10 bg-gray-800/20 backdrop-blur-md shadow-inner"
+/>
           </div>
         )}
 

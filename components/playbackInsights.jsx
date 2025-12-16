@@ -22,10 +22,10 @@ export default function PlaybackInsights({ segments }) {
           const barHeight = (seg.plays / maxPlays) * maxBarHeight;
           
           const barColor = seg.plays > maxPlays * 0.7
-            ? 'bg-gradient-to-t from-pink-500 to-rose-500'
+            ? 'bg-gradient-to-t from-blue-500 to-cyan-500'
             : seg.plays > maxPlays * 0.4
             ? 'bg-gradient-to-t from-orange-500 to-amber-500'
-            : 'bg-gradient-to-t from-blue-500 to-cyan-500';
+            : 'bg-gradient-to-t from-pink-500 to-rose-500';
 
           return (
             <div key={seg.index} className="flex flex-col items-center flex-1 group">
@@ -56,7 +56,7 @@ export default function PlaybackInsights({ segments }) {
       <div className="mt-10 pt-4 border-t border-gray-700/50">
         <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-gradient-to-t from-pink-500 to-rose-500" />
+            <div className="w-3 h-3 rounded bg-gradient-to-t from-blue-500 to-cyan-500" />
             <span>Most played</span>
           </div>
           <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function PlaybackInsights({ segments }) {
             <span>Popular</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-gradient-to-t from-blue-500 to-cyan-500" />
+            <div className="w-3 h-3 rounded bg-gradient-to-t from-pink-500 to-rose-500" />
             <span>Normal</span>
           </div>
           <div className="ml-auto text-sm text-gray-300">
