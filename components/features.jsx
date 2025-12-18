@@ -59,15 +59,6 @@ export const Features = () => {
       color: 'text-rose-400',
       bgColor: 'bg-rose-400/10',
       borderColor: 'border-rose-400/20'
-    },
-    {
-      icon: <Download className="w-6 h-6" />,
-      title: 'Export Options',
-      description:
-        'Multiple format support. Custom quality settings. Direct sharing to platforms.',
-      color: 'text-cyan-400',
-      bgColor: 'bg-cyan-400/10',
-      borderColor: 'border-cyan-400/20'
     }
   ];
 
