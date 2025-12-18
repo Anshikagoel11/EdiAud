@@ -1,8 +1,11 @@
+import { Features } from "@/components/features";
 import { Hero } from "@/components/hero";
+
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Hero/>
+    <div className="min-h-screen flex flex-col justify-centeritems-center text-white">
+      <Hero />
+      <Features />
     </div>
   );
 }

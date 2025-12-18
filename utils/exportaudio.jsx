@@ -13,13 +13,13 @@ export async function exportProcessedAudio(
 ) {
   if (!audioFile) return;
 
-  console.log("Processing audio with settings:", {
-    echoEnabled, echoDelay, echoFeedback,
-    reverbEnabled, reverbRoomSize, reverbWetDry,
-    trimStart, trimEnd
-  });
+  // console.log("audio with settings:", {
+  //   echoEnabled, echoDelay, echoFeedback,
+  //   reverbEnabled, reverbRoomSize, reverbWetDry,
+  //   trimStart, trimEnd
+  // });
 
-  /* 1️⃣ Decode audio */
+  /* Decode audio */
   const arrayBuffer = await audioFile.arrayBuffer();
   const audioCtx = new AudioContext();
   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
@@ -27,7 +27,7 @@ export async function exportProcessedAudio(
   const sampleRate = audioBuffer.sampleRate;
   const duration = audioBuffer.duration;
 
-  /* 2️⃣ Validate trim range (seconds) */
+  /* Validate trim range (seconds) */
   let startSec = Math.max(0, Number(trimStart) || 0);
   let endSec =
     trimEnd == null ? duration : Math.min(duration, Number(trimEnd));
@@ -37,23 +37,23 @@ export async function exportProcessedAudio(
     endSec = duration;
   }
   
-  console.log("exportProcessedAudio: trim range", { startSec, endSec, durationSeconds: duration });
+  // console.log("exportProcessedAudio:", { startSec, endSec, durationSeconds: duration });
 
-  /* 3️⃣ Convert seconds → samples */
+  /*  Convert seconds → samples */
   const startSample = Math.floor(startSec * sampleRate);
   const endSample = Math.floor(endSec * sampleRate);
   const trimmedLength = endSample - startSample;
 
   if (trimmedLength <= 0) return;
 
-  /* 4️⃣ OfflineAudioContext (ONLY trimmed length) */
+  /* OfflineAudioContext (ONLY trimmed length) */
   const offlineCtx = new OfflineAudioContext(
     audioBuffer.numberOfChannels,
     trimmedLength,
     sampleRate
   );
 
-  /* 5️⃣ Create trimmed buffer */
+  /* Create trimmed buffer */
   const trimmedBuffer = offlineCtx.createBuffer(
     audioBuffer.numberOfChannels,
     trimmedLength,
@@ -68,13 +68,13 @@ export async function exportProcessedAudio(
     trimmedBuffer.copyToChannel(channelData, ch);
   }
 
-  /* 6️⃣ Source */
+  /*  Source */
   const source = offlineCtx.createBufferSource();
   source.buffer = trimmedBuffer;
 
   let lastNode = source;
 
-  /* 7️⃣ Echo - with user parameters */
+  /* 7 Echo - with user parameters */
   if (echoEnabled) {
     const delay = offlineCtx.createDelay();
     delay.delayTime.value = echoDelay; // Use user's delay value
@@ -98,7 +98,7 @@ export async function exportProcessedAudio(
     lastNode.connect(offlineCtx.destination);
   }
 
-  /* 8️⃣ Reverb - with user parameters */
+  /* 8️ Reverb - with user parameters */
   if (reverbEnabled) {
     const convolver = offlineCtx.createConvolver();
     convolver.buffer = createImpulseResponse(offlineCtx, reverbRoomSize); // Use user's room size

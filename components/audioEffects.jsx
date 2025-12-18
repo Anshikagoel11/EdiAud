@@ -48,12 +48,12 @@ export default function AudioEffects({
       GLOBAL_SOURCE = GLOBAL_AUDIO_CTX.createMediaElementSource(audio);
     }
 
-    audioCtxRef.current = GLOBAL_AUDIO_CTX;
+    audioCtxRef.current = GLOBAL_AUDIO_CTX; 
     sourceRef.current = GLOBAL_SOURCE;
 
     if (!delayRef.current) {
       const audioCtx = audioCtxRef.current;
-      const source = sourceRef.current;
+      const source = sourceRef.current; 
 
       // Dry - original sound
       const dryGain = audioCtx.createGain(); //to control volume of original sound
