@@ -47,8 +47,6 @@ Feel free to fork, improve, and experiment with new ideas.
 ---
 
 ## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the Repository
 ```bash
 git clone https://github.com/Anshikagoel11/EdiAud.git
 
