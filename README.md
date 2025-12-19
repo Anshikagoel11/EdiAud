@@ -54,5 +54,5 @@ cd audio-editor
 
 Install Dependencies - npm install
 Run the Development Server - npm run dev
-visit : Visit http://localhost:3000 in your browser.
+visit : http://localhost:3000 in your browser.
 
