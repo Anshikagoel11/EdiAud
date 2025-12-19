@@ -52,7 +52,7 @@ git clone https://github.com/Anshikagoel11/EdiAud.git
 
 cd audio-editor
 
-Install Dependencies - npm install
-Run the Development Server - npm run dev
+Install Dependencies : npm install
+Run the Development Server : npm run dev
 visit : http://localhost:3000 in your browser.
 
