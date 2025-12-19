@@ -345,7 +345,7 @@ export default function AudioUploader() {
           </button>
         </div>
 
-        {/* Hidden Audio Effects Component */}
+     
         <AudioEffects
           audioRef={audioRef}
 

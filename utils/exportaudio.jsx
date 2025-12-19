@@ -27,7 +27,7 @@ export async function exportProcessedAudio(
   const sampleRate = audioBuffer.sampleRate;
   const duration = audioBuffer.duration;
 
-  /* Validate trim range (seconds) */
+  /*  trim range (sec) */
   let startSec = Math.max(0, Number(trimStart) || 0);
   let endSec =
     trimEnd == null ? duration : Math.min(duration, Number(trimEnd));
@@ -74,22 +74,21 @@ export async function exportProcessedAudio(
 
   let lastNode = source;
 
-  /* 7 Echo - with user parameters */
   if (echoEnabled) {
     const delay = offlineCtx.createDelay();
-    delay.delayTime.value = echoDelay; // Use user's delay value
+    delay.delayTime.value = echoDelay; 
 
     const feedback = offlineCtx.createGain();
-    feedback.gain.value = echoFeedback; // Use user's feedback value
+    feedback.gain.value = echoFeedback; 
 
     const wetGain = offlineCtx.createGain();
-    wetGain.gain.value = 0.5; // Mix level for echo
+    wetGain.gain.value = 0.5;
 
     // Connect echo feedback loop
     delay.connect(feedback);
     feedback.connect(delay);
 
-    // Connect source to both delay and output
+    // Connect source to both delay & output
     lastNode.connect(delay);
     delay.connect(wetGain);
     wetGain.connect(offlineCtx.destination);
@@ -98,16 +97,16 @@ export async function exportProcessedAudio(
     lastNode.connect(offlineCtx.destination);
   }
 
-  /* 8️ Reverb - with user parameters */
+  /* 8️ Reverb  */
   if (reverbEnabled) {
     const convolver = offlineCtx.createConvolver();
     convolver.buffer = createImpulseResponse(offlineCtx, reverbRoomSize); // Use user's room size
 
     const wetGain = offlineCtx.createGain();
-    wetGain.gain.value = reverbWetDry; // Use user's wet/dry mix
+    wetGain.gain.value = reverbWetDry;
 
     const dryGain = offlineCtx.createGain();
-    dryGain.gain.value = 1 - reverbWetDry; // Inverse for dry signal
+    dryGain.gain.value = 1 - reverbWetDry;
 
     // Wet path (with reverb)
     lastNode.connect(convolver);
@@ -119,7 +118,7 @@ export async function exportProcessedAudio(
     dryGain.connect(offlineCtx.destination);
   }
 
-  /* Connect to output if no effects are enabled */
+  
   if (!echoEnabled && !reverbEnabled) {
     lastNode.connect(offlineCtx.destination);
   }
@@ -138,15 +137,13 @@ export async function exportProcessedAudio(
   triggerDownload(wavBlob, fileName);
 }
 
-/* Reverb impulse - now accepts room size parameter */
 function createImpulseResponse(ctx, roomSize = 2) {
-  const length = Math.floor(ctx.sampleRate * roomSize); // Use room size to determine impulse length
+  const length = Math.floor(ctx.sampleRate * roomSize); 
   const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
 
   for (let ch = 0; ch < 2; ch++) {
     const data = buffer.getChannelData(ch);
     for (let i = 0; i < length; i++) {
-      // Create decay envelope based on room size
       const decay = Math.pow(1 - i / length, 2);
       data[i] = (Math.random() * 2 - 1) * decay;
     }
@@ -155,7 +152,7 @@ function createImpulseResponse(ctx, roomSize = 2) {
   return buffer;
 }
 
-/* Download helper */
+/* Download  */
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

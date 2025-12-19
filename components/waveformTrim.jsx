@@ -88,8 +88,7 @@ export default function WaveformTrim({ audioUrl, onTrimChange }) {
             <p className="text-sm text-gray-400">Drag handles to select range</p>
           </div>
         </div>
-        
-        {/* Play/Pause Button */}
+       
         <button
           onClick={togglePlayback}
           className={`p-2 rounded-lg transition-colors ${isPlaying ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'}`}

@@ -108,7 +108,7 @@ export default function AudioEffects({
       reverbGainRef.current = reverbGain;
 
       // Connections
-      //source → delay → echoGain → speaker
+      //source → delay → echoGain → speaker  --> sound flow
       source.connect(dryGain);
       dryGain.connect(audioCtx.destination);
 
@@ -134,7 +134,7 @@ export default function AudioEffects({
         0.05
       );
 
-      // Clamp feedback between 0 and 0.9
+  
       const clampedFeedback = Math.max(0, Math.min(0.9, echoFeedback));
       feedbackRef.current.gain.setTargetAtTime(
         clampedFeedback,
@@ -164,7 +164,6 @@ export default function AudioEffects({
       convolverRef.current.buffer = irBuffer;
     }
 
-    // Set echo gain (on/off with smooth transition)
     echoGainRef.current.gain.setTargetAtTime(
       echoEnabled ? 1 : 0,
       audioCtx.currentTime,
