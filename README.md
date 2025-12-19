@@ -46,20 +46,6 @@ Feel free to fork, improve, and experiment with new ideas.
 
 ---
 
-## 📂 Project Structure
-
-├── app/ # Next.js app router
-├── components/ # Reusable UI components
-├── middleware/ # Audio processing & reversible actions
-├── utils/ # Audio helpers & analytics logic
-├── styles/ # Global styles
-├── public/ # Static assets
-└── README.md
-
-
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
